@@ -13,8 +13,11 @@ import {
   Textarea,
   useToast,
 } from "@chakra-ui/react";
+import { addDoc, collection } from "firebase/firestore";
 import React, { useState } from "react";
 import { MdContentPaste, MdDelete } from "react-icons/md";
+import { db } from "../../Firebase/firebase";
+import axios from "axios";
 
 const JobDescriptionBox = ({ description, setDescription, children }) => {
   const OverlayOne = () => (
@@ -39,7 +42,7 @@ const JobDescriptionBox = ({ description, setDescription, children }) => {
     setContent(inputValue);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!content) {
       toast({
         title: "Please enter minimum 50 words.",
@@ -61,17 +64,48 @@ const JobDescriptionBox = ({ description, setDescription, children }) => {
       });
     } else {
       setDescription(content);
+      await handleDescription();
+
       modalClose();
+    }
+  };
+
+  const handleDescription = async () => {
+    try {
+      const {data} = await axios.post(
+        "https://cvscreening-e5765-default-rtdb.firebaseio.com/jobDescription.json",
+        { jobDescriptin: content }
+      );
+      toast({
+        title: "Job Description uploaded Successfully.",
+        description:data?.name,
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+        position: "bottom-left",
+      });
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: "Job Description not uploaded.",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "bottom-left",
+      });
     }
   };
 
   return (
     <>
-      
-      <div onClick={()=>{
-         setOverlay(<OverlayOne />);
-         onOpen();
-      }}>{children}</div>
+      <div
+        onClick={() => {
+          setOverlay(<OverlayOne />);
+          onOpen();
+        }}
+      >
+        {children}
+      </div>
       <Modal
         isCentered
         isOpen={isOpen}

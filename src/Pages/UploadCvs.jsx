@@ -12,6 +12,7 @@ const UploadCvs = () => {
 
   const toast = useToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  
 
   useEffect(() => {
     initFlowbite();
